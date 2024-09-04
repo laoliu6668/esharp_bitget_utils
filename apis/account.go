@@ -7,8 +7,6 @@ import (
 	binance "github.com/laoliu6668/esharp_bitget_utils"
 )
 
-const gateway_binance = "https://api.bitget.com"
-
 type TranId struct {
 	TranId string `json:"transferId"`
 }

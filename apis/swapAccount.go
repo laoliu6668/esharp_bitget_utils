@@ -78,54 +78,6 @@ func ChangeSwapLeverage(symbol string, leverage int, holdSide string) (err error
 }
 
 type SwapBalance struct {
-	AccountAlias       string `json:"accountAlias"`
-	Asset              string `json:"asset"`
-	Balance            string `json:"balance"`
-	CrossWalletBalance string `json:"crossWalletBalance"`
-	CrossUnPnl         string `json:"crossUnPnl"`
-	AvailableBalance   string `json:"availableBalance"`
-	MaxWithdrawAmount  string `json:"maxWithdrawAmount"`
-	MarginAvailable    bool   `json:"marginAvailable"`
-	UpdateTime         int    `json:"updateTime"`
-}
-
-// 账户余额V2
-// doc: https://binance-docs.github.io/apidocs/futures/cn/#v2-user_data
-// symbol default:USDT
-func GetSwapBalance(symbol string) (b SwapBalance, err error) {
-	const flag = "binance GetSwapBalance"
-	body, _, err := root.ApiConfig.Get(Gateway, "/fapi/v2/balance", nil)
-	if err != nil {
-		err = fmt.Errorf("%s err: %v", flag, err)
-		return
-	}
-	// fmt.Printf("body: %s\n", body)
-	res := []SwapBalance{}
-	err = json.Unmarshal(body, &res)
-	if err != nil {
-		err = fmt.Errorf("%s jsonDecodeErr: %v", flag, err)
-		fmt.Println(err)
-		return
-	}
-	if symbol == "" {
-		symbol = "USDT"
-	}
-	has := false
-	for _, v := range res {
-		if v.Asset == symbol {
-			has = true
-			b = v
-		}
-	}
-	if !has {
-		err = fmt.Errorf("%s err: %v", flag, "symbol not found")
-		return
-	}
-
-	return
-}
-
-type SwapPosition struct {
 	MarginCoin string `json:"marginCoin"` // 保证金币种
 	Locked     string `json:"locked"`     // 锁定数量(保证金币种)
 	Available  string `json:"available"`  // 账户可用数量
@@ -133,7 +85,7 @@ type SwapPosition struct {
 
 // 账户信息 持仓
 // doc: https://www.bitget.fit/zh-CN/api-doc/contract/account/Get-Account-List
-func GetSwapAccount() (data []SwapPosition, err error) {
+func GetSwapBalance() (data []SwapBalance, err error) {
 	body, _, err := root.ApiConfig.Get(Gateway, "/api/v2/mix/account/accounts", map[string]any{
 		"productType": "USDT-FUTURES",
 	})
