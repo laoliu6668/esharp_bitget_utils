@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	root "github.com/laoliu6668/esharp_bitget_utils"
-	"github.com/laoliu6668/esharp_bitget_utils/util"
 )
 
 type SpotFilterSymbol struct {
@@ -17,6 +16,7 @@ type SpotFilterSymbol struct {
 	MinTradeUSDT      string `json:"minTradeUSDT"`             // 最小USDT交易额
 	QuantityPrecision string `json:"quantityPrecision"`        // 数量小数位
 	PricePrecision    string `json:"prpricePrecisionicePlace"` // 价格小数位
+	QuotePrecision    string `json:"quotePrecision"`           // 右币精度(金额精度)
 }
 
 // 获取现货全局过滤器
@@ -36,7 +36,7 @@ func GetSpotFiliters() (data []SpotFilterSymbol, err error) {
 		fmt.Println(err)
 		return
 	}
-	util.WriteTestJsonFile(GetFlag(), body)
+	// util.WriteTestJsonFile(GetFlag(), body)
 	res := []SpotFilterSymbol{}
 	err = json.Unmarshal(body, &res)
 	if err != nil {
