@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	root "github.com/laoliu6668/esharp_bitget_utils"
+	"github.com/laoliu6668/esharp_bitget_utils/util"
 )
 
 type Res struct {
@@ -21,7 +22,7 @@ func ChangeSwapMarginType(symbol string, ISOLATED bool) (err error) {
 	if ISOLATED {
 		marginType = "isolated"
 	}
-	body, _, err := root.ApiConfig.Post(Gateway, "/api/v2/mix/account/set-margin-mode", map[string]any{
+	_, _, err = root.ApiConfig.Post(Gateway, "/api/v2/mix/account/set-margin-mode", map[string]any{
 		"marginMode":  marginType,
 		"productType": "USDT-FUTURES",
 		"marginCoin":  "USDT",
@@ -31,7 +32,7 @@ func ChangeSwapMarginType(symbol string, ISOLATED bool) (err error) {
 		err = fmt.Errorf("%s err: %v", GetFlag(), err)
 		return
 	}
-	fmt.Printf("body: %s\n", body)
+	// fmt.Printf("body: %s\n", body)
 
 	return nil
 }
@@ -103,6 +104,50 @@ func GetSwapBalance() (data []SwapBalance, err error) {
 	return
 }
 
+type SwapPosition struct {
+	Symbol           string  `json:"symbol"`           // 币对名称
+	MarginCoin       string  `json:"marginCoin"`       // 保证金币种
+	MarginSize       string  `json:"marginSize"`       // 保证金数量
+	HoldSide         string  `json:"holdSide"`         // 持仓方向
+	Total            string  `json:"total"`            // 仓位总数量(available + locked)
+	Leverage         string  `json:"leverage"`         // 杠杆倍数
+	PosMode          string  `json:"posMode"`          // 持仓模式 one_way_mode 单向持仓 hedge_mode 双向持仓
+	LiquidationPrice string  `json:"liquidationPrice"` // 预估强平价
+	MarkPrice        string  `json:"markPrice"`        // 标记价格
+	Available        string  `json:"available"`        // 账户可用数量
+	CmarginRatio     float64 `json:"c_marginRatio"`    // 保证金率
+}
+
+// 账户信息 持仓
+// doc: https://www.bitget.fit/zh-CN/api-doc/contract/account/Get-Single-Account
+func GetSwapPosition() (data []SwapPosition, err error) {
+	body, _, err := root.ApiConfig.Get(Gateway, "/api/v2/mix/position/all-position", map[string]any{
+		"productType": "USDT-FUTURES",
+		"marginCoin":  "USDT",
+	})
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", GetFlag(), err)
+		return
+	}
+	b := []SwapPosition{}
+	err = json.Unmarshal(body, &b)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", GetFlag(), err)
+		fmt.Println(err)
+		return
+	}
+	for _, v := range b {
+		v.CmarginRatio = util.FixedFloat(
+			util.ParseFloat(v.MarginSize, 0)/
+				(util.ParseFloat(v.Total, 0)*util.ParseFloat(v.MarkPrice, 0))*
+				util.ParseFloat(v.Leverage, 0)*100,
+			2,
+		)
+		data = append(data, v)
+	}
+	return
+}
+
 type SwapFunding struct {
 	Symbol      string `json:"symbol"`          // 交易对 "BTCUSDT"
 	FundingRate string `json:"lastFundingRate"` // 最近更新的资金费率
@@ -113,21 +158,21 @@ type SwapFunding struct {
 
 // 期货资金费率
 // doc: https://www.bitget.fit/zh-CN/api-doc/contract/market/Get-Current-Funding-Rate
-func GetSwapFunding() (data []SwapFunding, err error) {
-	body, _, err := root.ApiConfig.Request("GET", Gateway, "/api/v2/mix/market/current-fund-rate", nil, 0, false)
-	if err != nil {
-		err = fmt.Errorf("%s err: %v", GetFlag(), err)
-		return
-	}
-	fmt.Printf("body: %s\n", body)
-	err = json.Unmarshal(body, &data)
-	if err != nil {
-		err = fmt.Errorf("%s jsonDecodeErr: %v", GetFlag(), err)
-		fmt.Println(err)
-		return
-	}
-	return
-}
+// func GetSwapFunding() (data []SwapFunding, err error) {
+// 	body, _, err := root.ApiConfig.Request("GET", Gateway, "/api/v2/mix/market/current-fund-rate", nil, 0, false)
+// 	if err != nil {
+// 		err = fmt.Errorf("%s err: %v", GetFlag(), err)
+// 		return
+// 	}
+// 	fmt.Printf("body: %s\n", body)
+// 	err = json.Unmarshal(body, &data)
+// 	if err != nil {
+// 		err = fmt.Errorf("%s jsonDecodeErr: %v", GetFlag(), err)
+// 		fmt.Println(err)
+// 		return
+// 	}
+// 	return
+// }
 
 // // 账户信息 持仓风险
 // // doc: https://binance-docs.github.io/apidocs/futures/cn/#v2-user_data-2
