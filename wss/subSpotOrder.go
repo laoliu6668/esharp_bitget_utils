@@ -107,7 +107,7 @@ func subSpotOrder(ws *websocketclient.Wsc, symbols []string) {
 		args = append(args, map[string]string{
 			"instType": "SPOT",
 			"channel":  "orders",
-			"instId":   s,
+			"instId":   fmt.Sprintf("%sUSDT", s),
 		})
 	}
 	mp := map[string]any{
