@@ -25,6 +25,7 @@ type SwapPositionMessageData struct {
 	Available          string `json:"available"`          // 可平仓数量
 	Leverage           int    `json:"leverage"`           // 杠杆倍数
 	HoldSide           string `json:"holdSide"`           // 持仓方向
+	UnrealizedPL       string `json:"unrealizedPL"`       // 未实现盈亏
 	IsolatedMarginRate string `json:"isolatedMarginRate"` // 逐仓时，实际保证金率
 }
 type SwapOrderMessageData struct {
@@ -106,7 +107,7 @@ func SubSwapAccount(reciveAccHandle func(ReciveBalanceMsg), recivePositionHandle
 					position := RecivePositionMsg{
 						Exchange:    root.ExchangeName,
 						Symbol:      strings.Replace(m.InstId, "USDT", "", 1),
-						Margin:      util.ParseFloat(m.MarginSize, 0),
+						Margin:      util.ParseFloat(m.MarginSize, 0) + util.ParseFloat(m.UnrealizedPL, 0),
 						MarginRatio: util.FixedFloat(util.ParseFloat(m.IsolatedMarginRate, 0)*float64(m.Leverage)*100, 2),
 					}
 					if m.HoldSide == "long" {

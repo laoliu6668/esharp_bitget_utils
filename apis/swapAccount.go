@@ -111,6 +111,7 @@ type SwapPosition struct {
 	HoldSide         string  `json:"holdSide"`         // 持仓方向
 	Total            string  `json:"total"`            // 仓位总数量(available + locked)
 	Leverage         string  `json:"leverage"`         // 杠杆倍数
+	UnrealizedPL     string  `json:"unrealizedPL"`     // 未实现盈亏
 	PosMode          string  `json:"posMode"`          // 持仓模式 one_way_mode 单向持仓 hedge_mode 双向持仓
 	LiquidationPrice string  `json:"liquidationPrice"` // 预估强平价
 	MarkPrice        string  `json:"markPrice"`        // 标记价格
@@ -138,7 +139,7 @@ func GetSwapPosition() (data []SwapPosition, err error) {
 	}
 	for _, v := range b {
 		v.CmarginRatio = util.FixedFloat(
-			util.ParseFloat(v.MarginSize, 0)/
+			(util.ParseFloat(v.MarginSize, 0)+util.ParseFloat(v.UnrealizedPL, 0))/
 				(util.ParseFloat(v.Total, 0)*util.ParseFloat(v.MarkPrice, 0))*
 				util.ParseFloat(v.Leverage, 0)*100,
 			2,
