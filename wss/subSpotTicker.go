@@ -17,11 +17,13 @@ type TickerMessage struct {
 }
 
 type TickerData struct {
-	Symbol    string `json:"instId"` // 交易对
-	BuyPrice  string `json:"bidPr"`  // 买一价
-	BuySize   string `json:"bidSz"`  // 买一量
-	SellPrice string `json:"askPr"`  // 卖一价
-	SellSize  string `json:"askSz"`  // 卖一量
+	Symbol          string `json:"instId"` // 交易对
+	BuyPrice        string `json:"bidPr"`  // 买一价
+	BuySize         string `json:"bidSz"`  // 买一量
+	SellPrice       string `json:"askPr"`  // 卖一价
+	SellSize        string `json:"askSz"`  // 卖一量
+	FundingRate     string `json:"fundingRate"`
+	NextFundingTime string `json:"nextFundingTime"` // 下次结算时间
 }
 
 func SubSpotTicker(symbols []string, reciveHandle func(Ticker), logHandle func(string), errHandle func(error)) {

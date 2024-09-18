@@ -49,7 +49,9 @@ func SubSwapTicker(symbols []string, reciveHandle func(Ticker), logHandle func(s
 						Price: util.ParseFloat(m.SellPrice, 0),
 						Size:  util.ParseFloat(m.SellSize, 0),
 					},
-					UpdateAt: root.GetTimeFloat(),
+					FundingRate: util.ParseFloat(m.FundingRate, 0),
+					FundingTime: util.ParseInt(m.NextFundingTime, 0),
+					UpdateAt:    root.GetTimeFloat(),
 				})
 			}
 		} else if ms.Event == "subscribe" {

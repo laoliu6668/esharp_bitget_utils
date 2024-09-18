@@ -60,6 +60,7 @@ type SwapFilterSymbol struct {
 	MinTradeUSDT string `json:"minTradeUSDT"` // 最小USDT交易额
 	VolumePlace  string `json:"volumePlace"`  // 数量小数位
 	PricePlace   string `json:"pricePlace"`   // 价格小数位
+	MakerFeeRate string `json:"makerFeeRate"` // market手续费率
 }
 
 // 获取期货全局过滤器

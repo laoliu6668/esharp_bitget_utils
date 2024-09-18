@@ -5,11 +5,13 @@ type Values struct {
 	Size  float64 `json:"size"`
 }
 type Ticker struct {
-	Exchange string  `json:"exchange"`
-	Symbol   string  `json:"symbol"`
-	Buy      Values  `json:"buy"`
-	Sell     Values  `json:"sell"`
-	UpdateAt float64 `json:"update_at"`
+	Exchange    string  `json:"exchange"`
+	Symbol      string  `json:"symbol"`
+	Buy         Values  `json:"buy"`
+	Sell        Values  `json:"sell"`
+	UpdateAt    float64 `json:"update_at"`
+	FundingRate float64 `json:"funding_rate"`
+	FundingTime int64   `json:"funding_time"`
 }
 type ReciveData struct {
 	Exchange string `json:"exchange"`
