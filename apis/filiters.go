@@ -8,15 +8,15 @@ import (
 )
 
 type SpotFilterSymbol struct {
-	Status            string `json:"status"`                   // online
-	QuoteCoin         string `json:"quoteCoin"`                // USDT
-	BaseCoin          string `json:"baseCoin"`                 // BTC
-	MinTradeAmount    string `json:"minTradeAmount"`           // 最小交易数量
-	MaxTradeAmount    string `json:"maxTradeAmount"`           // 最大交易数量
-	MinTradeUSDT      string `json:"minTradeUSDT"`             // 最小USDT交易额
-	QuantityPrecision string `json:"quantityPrecision"`        // 数量小数位
-	PricePrecision    string `json:"prpricePrecisionicePlace"` // 价格小数位
-	QuotePrecision    string `json:"quotePrecision"`           // 右币精度(金额精度)
+	Status            string `json:"status"`            // online
+	QuoteCoin         string `json:"quoteCoin"`         // USDT
+	BaseCoin          string `json:"baseCoin"`          // BTC
+	MinTradeAmount    string `json:"minTradeAmount"`    // 最小交易数量
+	MaxTradeAmount    string `json:"maxTradeAmount"`    // 最大交易数量
+	MinTradeUSDT      string `json:"minTradeUSDT"`      // 最小USDT交易额
+	QuantityPrecision string `json:"quantityPrecision"` // 数量小数位
+	PricePrecision    string `json:"pricePrecision"`    // 价格小数位
+	QuotePrecision    string `json:"quotePrecision"`    // 右币精度(金额精度)
 }
 
 // 获取现货全局过滤器
