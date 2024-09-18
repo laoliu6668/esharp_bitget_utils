@@ -185,6 +185,9 @@ func SubSwapAccount(reciveAccHandle func(ReciveBalanceMsg), recivePositionHandle
 					return
 				}
 				for _, m := range ms.Data {
+					if m.Status != "filled" {
+						continue
+					}
 					var (
 						orderVolume = util.ParseFloat(m.Size, 0)
 						tradePrice  = util.ParseFloat(m.PriceAvg, 0)
