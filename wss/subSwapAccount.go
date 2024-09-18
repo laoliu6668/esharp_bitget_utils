@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	root "github.com/laoliu6668/esharp_bitget_utils"
@@ -50,14 +49,9 @@ type SwapAccMessage struct {
 	Action string         `json:"action"`
 }
 
-var (
-	SwapPositionCache     = map[string]SwapPositionMessageData{}
-	SwapPositionCacheLock = sync.Mutex{}
-)
-
 // 订阅期货账户变化
 // 余额+持仓+订单
-func SubSwapAccount(reciveAccHandle func(ReciveBalanceMsg), recivePositionHandle func(RecivePositionMsg), reciveOrderHandle func(ReciveSwapOrderMsg), logHandle func(string), errHandle func(error)) {
+func SubSwapAccount(reciveAccHandle func(ReciveBalanceMsg), recivePositionHandle func([]RecivePositionMsg), reciveOrderHandle func(ReciveSwapOrderMsg), logHandle func(string), errHandle func(error)) {
 	onConnected := func(ws *websocketclient.Wsc) {
 		SendAuth(ws)
 	}
@@ -108,55 +102,7 @@ func SubSwapAccount(reciveAccHandle func(ReciveBalanceMsg), recivePositionHandle
 					go errHandle(fmt.Errorf("msg json.Unmarshal err:%v %s", err, msg))
 					return
 				}
-
-				SwapPositionCacheLock.Lock()
-				for k, v := range SwapPositionCache {
-					for i, m := range ms.Data {
-						coin := strings.Replace(m.InstId, "USDT", "", 1)
-						if k == coin {
-							// 匹配
-							// 判断是否变化
-							if v.MarginSize == m.MarginSize && v.UnrealizedPL == m.UnrealizedPL && v.IsolatedMarginRate == m.IsolatedMarginRate && v.Leverage == m.Leverage && v.Total == m.Total {
-								// 无变化 不推送
-								break
-							}
-							// 有变化 推送
-							margin := util.ParseFloat(m.MarginSize, 0) + util.ParseFloat(m.UnrealizedPL, 0)
-							marginRate := util.FixedFloat(util.ParseFloat(m.IsolatedMarginRate, 0)*float64(m.Leverage)*100, 2)
-							volume := util.ParseFloat(m.Total, 0)
-							position := RecivePositionMsg{
-								Exchange:    root.ExchangeName,
-								Symbol:      coin,
-								Margin:      margin,
-								MarginRatio: marginRate,
-							}
-							if m.HoldSide == "long" {
-								position.BuyVolume = volume
-							} else {
-								position.SellVolume = volume
-							}
-							recivePositionHandle(position)
-							SwapPositionCache[k] = m
-							break
-						}
-						if i == len(ms.Data)-1 {
-							// 不匹配
-							recivePositionHandle(RecivePositionMsg{
-								Exchange:    root.ExchangeName,
-								Symbol:      coin,
-								BuyVolume:   0,
-								SellVolume:  0,
-								Margin:      0,
-								MarginRatio: 0,
-							})
-							delete(SwapPositionCache, coin)
-
-						}
-					}
-				}
-				SwapPositionCacheLock.Unlock()
-
-				// 账户频道
+				positions := []RecivePositionMsg{}
 				for _, m := range ms.Data {
 					position := RecivePositionMsg{
 						Exchange:    root.ExchangeName,
@@ -169,8 +115,9 @@ func SubSwapAccount(reciveAccHandle func(ReciveBalanceMsg), recivePositionHandle
 					} else {
 						position.SellVolume = util.ParseFloat(m.Total, 0)
 					}
-					recivePositionHandle(position)
+					positions = append(positions, position)
 				}
+				recivePositionHandle(positions)
 			} else if ms.Arg["channel"] == "orders" {
 				// 订单频道
 				// 持仓频道
