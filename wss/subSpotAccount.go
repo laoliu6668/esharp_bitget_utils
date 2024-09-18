@@ -39,7 +39,8 @@ func SubSpotAccount(reciveAccHandle func(ReciveBalanceMsg), logHandle func(strin
 		}
 		if ms.Event == "subscribe" {
 			buf, _ := json.Marshal(ms.Arg)
-			go logHandle(fmt.Sprintf("订阅成功: %s", buf))
+			fmt.Printf("订阅成功: %s\n", buf)
+			// go logHandle(fmt.Sprintf("订阅成功: %s", buf))
 		} else if ms.Event == "login" {
 			go logHandle("ws登录成功: " + time.Now().Format("2006-01-02 15:04:05"))
 			subSpotAccount(ws)
