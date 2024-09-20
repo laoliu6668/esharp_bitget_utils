@@ -64,7 +64,7 @@ func SpotSellMarket(symb string, volume float64) (data string, err error) {
 		fmt.Println(err)
 		return
 	}
-	fmt.Printf("string(body): %v\n", string(body))
+	// fmt.Printf("string(body): %v\n", string(body))
 	res := OrderRes{}
 	err = json.Unmarshal(body, &res)
 	if err != nil {
