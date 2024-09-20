@@ -18,7 +18,7 @@ type SpotOrderMessageData struct {
 	Price         string `json:"price"`         // 	委托价格
 	Size          string `json:"size"`          // 委托数量 side=buy 时，该值为计价币数量  side=sell 时，该值为基础币数量
 	Notional      string `json:"notional"`      // 买入金额，市价买入时返回
-	OrdType       string `json:"ordType"`       // 订单类型，market：市价单 limit：限价单
+	OrdType       string `json:"orderType"`     // 订单类型，market：市价单 limit：限价单
 	Side          string `json:"side"`          // 订单方向 buy|sell
 	AccBaseVolume string `json:"accBaseVolume"` // 累计已成交数量
 	PriceAvg      string `json:"priceAvg"`      // 累计成交均价
@@ -49,7 +49,7 @@ func SubSpotOrder(symbols []string, reciveOrderHandle func(ReciveSpotOrderMsg), 
 			return
 		}
 		if ms.Action == "snapshot" {
-			if ms.Arg["channel"] == "order" {
+			if ms.Arg["channel"] == "orders" {
 				// 订单频道
 				for _, m := range ms.Data {
 					if m.OrdType == "market" && m.Status == "filled" {
