@@ -36,6 +36,7 @@ type SwapOrderMessageData struct {
 	Notional      string `json:"notional"`      // 买入金额，市价买入时返回
 	OrdType       string `json:"ordType"`       // 订单类型，market：市价单 limit：限价单
 	PosSide       string `json:"posSide"`       // long|short
+	TradeSide     string `json:"tradeSide"`     // open|close
 	Side          string `json:"side"`          // 订单方向 buy|sell
 	AccBaseVolume string `json:"accBaseVolume"` // 累计已成交数量
 	PriceAvg      string `json:"priceAvg"`      // 累计成交均价
@@ -141,19 +142,17 @@ func SubSwapAccount(reciveAccHandle func(ReciveBalanceMsg), recivePositionHandle
 						tradeVolume = util.ParseFloat(m.AccBaseVolume, 0)
 						orderType   string
 					)
-					if m.PosSide == "short" {
-						if m.Side == "buy" {
-							orderType = "sell-open"
-						} else {
-							orderType = "buy-close"
-						}
-					} else if m.PosSide == "long" {
-						if m.Side == "buy" {
-							orderType = "buy-open"
-						} else {
-							orderType = "sell-close"
+					if m.PosSide == "short" && m.TradeSide == "close" {
+						if m.Side == "sell" {
+							m.Side = "buy"
 						}
 					}
+					if m.PosSide == "long" && m.TradeSide == "close" {
+						if m.Side == "buy" {
+							m.Side = "sell"
+						}
+					}
+					orderType = fmt.Sprintf("%s-%s", m.Side, m.TradeSide)
 					ctime, _ := strconv.Atoi(m.CTime)
 					ftime, _ := strconv.Atoi(m.FillTime)
 					go reciveOrderHandle(ReciveSwapOrderMsg{
